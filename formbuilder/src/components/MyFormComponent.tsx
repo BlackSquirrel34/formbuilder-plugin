@@ -1,10 +1,13 @@
 'use client'
-import { useEffect } from 'react'
+import { RichText } from '@payloadcms/richtext-lexical/react'
+import { useEffect, useRef } from 'react'
 import { useState } from 'react'
 
 const MyFormComponent = ({ formId }: { formId: string }) => {
   const [cmsForm, setCmsForm] = useState<any>(null)
   const [error, setError] = useState<string | null>(null)
+  const formRef = useRef<HTMLFormElement>(null)
+  const [success, setSuccess] = useState<boolean>(false)
 
   // get the form from payload
   useEffect(() => {
@@ -41,13 +44,28 @@ const MyFormComponent = ({ formId }: { formId: string }) => {
         'Content-Type': 'application/json',
       },
     })
-    alert(response)
+
+    if (response.ok) {
+      setSuccess(true)
+    } else {
+      setError('Form submission failed')
+      setSuccess(false)
+    }
+
+    // reset the form
+    formRef.current?.reset()
+  }
+
+  if (!cmsForm) return <div>Loading...</div>
+
+  if (success && cmsForm.confirmationMessage) {
+    return <RichText data={cmsForm.confirmationMessage} />
   }
 
   return (
     <div>
       <h2>Form</h2>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} ref={formRef}>
         {cmsForm?.fields.map((field: any) => (
           <div key={field.id}>
             <label htmlFor={field.name}>{field.label}</label>

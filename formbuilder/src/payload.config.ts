@@ -36,6 +36,38 @@ export default buildConfig({
   plugins: [
     payloadCloudPlugin(),
     // storage-adapter-placeholder
-    formBuilderPlugin({}),
+    formBuilderPlugin({
+      formOverrides: {
+        fields: ({ defaultFields }) => {
+          return [
+            ...defaultFields,
+            {
+              name: 'hasAttachment',
+              type: 'checkbox',
+            },
+            {
+              name: 'hasAttachmentLabel',
+              type: 'text',
+            },
+          ]
+        },
+      },
+      formSubmissionOverrides: {
+        fields: ({ defaultFields }) => {
+          return [
+            ...defaultFields,
+            {
+              name: 'file',
+              type: 'upload',
+              relationTo: 'media',
+              admin: {
+                allowCreate: true,
+                allowEdit: true,
+              },
+            },
+          ]
+        },
+      },
+    }),
   ],
 })
